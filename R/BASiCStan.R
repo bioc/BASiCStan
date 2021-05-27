@@ -17,7 +17,7 @@
 #' @examples
 #' library("BASiCS")
 #' sce <- BASiCS_MockSCE()
-#' BASiCStan(sce)
+#' BASiCStan(sce, tol_rel_obj = 1e-1)
 #' @export
 BASiCStan <- function(
     Data, 
@@ -97,10 +97,10 @@ BASiCStan <- function(
     bstwo = 2
   )
   fit <- fun(model, data = sdata, ...)
-  if (ReturnFit) {
-    fit
-  } else {
+  if (ReturnBASiCS) {
     stan2basics(fit, gene_names = rownames(counts), cell_names = colnames(counts))
+  } else {
+    fit
   }
 }
 

@@ -43,5 +43,5 @@ Stan implementation of BASiCS (with spike-in genes only)
 \examples{
 library("BASiCS")
 sce <- BASiCS_MockSCE()
-BASiCStan(sce)
+BASiCStan(sce, tol_rel_obj = 1e-1)
 }
