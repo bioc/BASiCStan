@@ -53,7 +53,10 @@ BASiCStan <- function(
     counts <- counts(Data)
   }
   if (is.null(BatchInfo)) {
-    BatchInfo <- rep(1, ncol(Data))
+    BatchInfo <- 1
+    batch_design <- matrix(1, nrow = ncol(Data))
+  } else {
+    batch_design <- model.matrix(~0 + factor(BatchInfo))
   }
 
   PP <- BASiCS::BASiCS_PriorParam(
@@ -70,6 +73,7 @@ BASiCStan <- function(
     PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
   }
   Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
+
   sdata <- list(
     q = nrow(counts), 
     n = ncol(counts),
@@ -78,7 +82,7 @@ BASiCStan <- function(
     counts = as.matrix(counts),
     spikes = spikes,
     spike_levels = rowData(altExp(Data))[, 2],
-    batch_design = model.matrix(~0 + factor(BatchInfo)),
+    batch_design = batch_design,
     as = 1,
     bs = 1,
     atheta = 1,
