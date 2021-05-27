@@ -52,7 +52,7 @@ BASiCStan <- function(
     spikes <- NULL
     counts <- counts(Data)
   }
-  if (is.null(BatchInfo)) {
+  if (is.null(BatchInfo) | length(unique(BatchInfo)) == 1) {
     BatchInfo <- 1
     batch_design <- matrix(1, nrow = ncol(Data))
   } else {
