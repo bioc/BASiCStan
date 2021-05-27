@@ -7,11 +7,11 @@
 BASiCStan(
   Data,
   Method = c("vb", "sampling", "optimizing"),
-  Regression = TRUE,
   WithSpikes = length(altExpNames(Data)) > 0,
   BatchInfo = Data$BatchInfo,
   L = 12,
-  ReturnFit = TRUE,
+  PriorMu = c("EmpiricalBayes", "uninformative"),
+  ReturnBASiCS = TRUE,
   ...
 )
 }
@@ -21,13 +21,27 @@ BASiCStan(
 \item{Method}{Inference method: Variational Bayes ("vb") or Hamiltonian
 Monte Carlo ("sampling").}
 
-\item{Regression}{Logical scalar indicating whether or perform the
-mean-overdispersion Regression described in Eling et al.}
-
 \item{WithSpikes}{Do the data contain spike-in genes? See BASiCS for details.}
+
+\item{BatchInfo}{Vector describing which batch each cell is from.}
+
+\item{L}{Number of regression terms (including slope and intercept) to use in
+joint prior for mu and delta.}
+
+\item{PriorMu}{Type of prior to use for mean expression. Default is
+"EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
+previous work.}
+
+\item{ReturnBASiCS}{Should the object be converted into a
+\linkS4class{BASiCS_Chain} object?}
 
 \item{...}{Passed to vb or sampling.}
 }
 \description{
 Stan implementation of BASiCS (with spike-in genes only)
+}
+\examples{
+library("BASiCS")
+sce <- BASiCS_MockSCE()
+BASiCStan(sce)
 }

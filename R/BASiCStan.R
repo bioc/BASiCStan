@@ -2,36 +2,41 @@
 #' @param Data SingleCellExperiment object
 #' @param Method Inference method: Variational Bayes ("vb") or Hamiltonian
 #' Monte Carlo ("sampling").
-#' @param Regression Logical scalar indicating whether or perform the 
-#' mean-overdispersion Regression described in Eling et al.
 #' @param WithSpikes Do the data contain spike-in genes? See BASiCS for details.
+#' @param BatchInfo Vector describing which batch each cell is from.
+#' @param L Number of regression terms (including slope and intercept) to use in
+#' joint prior for mu and delta.
+#' @param PriorMu Type of prior to use for mean expression. Default is 
+#' "EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
+#' previous work.
+#' @param ReturnBASiCS Should the object be converted into a 
+#' \linkS4class{BASiCS_Chain} object?
 #' @param ... Passed to vb or sampling.
 #' @importFrom rstan vb sampling
 #' 
+#' @examples
+#' library("BASiCS")
+#' sce <- BASiCS_MockSCE()
+#' BASiCStan(sce)
 #' @export
 BASiCStan <- function(
     Data, 
     Method = c("vb", "sampling", "optimizing"), 
-    Regression = TRUE,
     WithSpikes = length(altExpNames(Data)) > 0,
     BatchInfo = Data$BatchInfo,
     L = 12,
-    ReturnFit = TRUE,
+    PriorMu = c("EmpiricalBayes", "uninformative"),
+    ReturnBASiCS = TRUE,
     ...
   ) {
 
   Method <- match.arg(Method)
-  fun <- match.fun(Method)
+  fun <- get(Method, mode = "function")
+  PriorMu <- match.arg(PriorMu)
 
-  if (!is.logical(Regression) && length(Regression) == 1) {
-    stop("Invalid value for Regression argument.")
-  }
   
   mod <- "basics_regression"
 
-  # if (Regression) {
-  #   mod <- paste(mod, "regression", sep = "_")
-  # }
   # if (!WithSpikes) {
   #   mod <- paste(mod, "nospikes", sep = "_")
   # }
@@ -61,8 +66,10 @@ BASiCStan <- function(
     Regression = TRUE,
     WithSpikes = WithSpikes
   )
+  if (PriorMu == "EmpiricalBayes") {
+    PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
+  }
   Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
-
   sdata <- list(
     q = nrow(counts), 
     n = ncol(counts),
@@ -71,7 +78,7 @@ BASiCStan <- function(
     counts = as.matrix(counts),
     spikes = spikes,
     spike_levels = rowData(altExp(Data))[, 2],
-    batch_design = model.matrix(~0 + BatchInfo),
+    batch_design = model.matrix(~0 + factor(BatchInfo)),
     as = 1,
     bs = 1,
     atheta = 1,
@@ -148,7 +155,45 @@ stan2basics <- function(
   new("BASiCS_Chain", parameters = parameters)
 }
 
-
 vb <- function(..., tol_rel_obj = 1e-3) {
   rstan::vb(..., tol_rel_obj = tol_rel_obj)
+}
+
+sampling <- function(...) {
+  rstan::sampling(...)
+}
+
+optimizing <- function(...) {
+  rstan::optimizing(...)
+}
+
+extract <- function(fit) {
+    UseMethod("extract")
+}
+
+#' @export
+extract.stanfit <- function(fit) {
+    rstan::extract(fit)
+}
+
+#' @export
+extract.list <- function(fit) {
+    pars <- gsub("\\[(\\d+,)*\\d+\\]", "", names(fit$par))
+    dims <- gsub("^[a-z0_]+\\[(.*)\\]", "\\1", names(fit$par))
+    out <- lapply(unique(pars),
+        function(p) {
+            ind <- pars == p
+            if (!all(grepl("[", names(fit$par)[ind], fixed = TRUE))) {
+                return(matrix(fit$par[ind], ncol = 1))
+            }
+            l <- strsplit(dims[ind], ",")
+            d <- do.call(rbind, l)
+            d <- matrix(as.numeric(d), ncol = ncol(d))
+            array(
+                fit$par[ind],
+                dim = c(1, apply(d, 2, max))
+            )
+        }
+    )
+    setNames(out, unique(pars))
 }
