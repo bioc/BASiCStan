@@ -1,22 +1,27 @@
 Package: BASiCStan
-Title: What the Package Does (One Line, Title Case)
+Title: Stan implementation of BASiCS
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    c(
+        person(given = "Alan",
+           family = "O'Callaghan",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "alan.ocallaghan@outlook.com"),
+        person(given = "Catalina",
+           family = "Vallejos",
+           role = c("aut")
+    )
+Description:
+    Provides an interface to use the ADVI, HMC, and MAP inference engines
+    in the Stan programming language for inference with BASiCS.
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Biarch: true
 Depends: 
-    R (>= 3.4.0)
+    R (>= 4.0)
 Imports: 
     methods,
     BASiCS,
