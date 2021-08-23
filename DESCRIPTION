@@ -3,13 +3,17 @@ Title: Stan implementation of BASiCS
 Version: 0.0.0.9000
 Authors@R: 
     c(
-        person(given = "Alan",
-           family = "O'Callaghan",
-           role = c("aut", "cre"),
-           email = "alan.ocallaghan@outlook.com"),
-        person(given = "Catalina",
-           family = "Vallejos",
-           role = c("aut")
+        person(
+            given = "Alan",
+            family = "O'Callaghan",
+            role = c("aut", "cre"),
+            email = "alan.ocallaghan@outlook.com"
+        ),
+        person(
+            given = "Catalina",
+            family = "Vallejos",
+            role = c("aut")
+        )
     )
 Description:
     Provides an interface to use the ADVI, HMC, and MAP inference engines
