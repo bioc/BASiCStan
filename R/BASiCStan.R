@@ -6,26 +6,29 @@
 #' @param BatchInfo Vector describing which batch each cell is from.
 #' @param L Number of regression terms (including slope and intercept) to use in
 #' joint prior for mu and delta.
-#' @param PriorMu Type of prior to use for mean expression. Default is 
+#' @param PriorMu Type of prior to use for mean expression. Default is
 #' "EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
 #' previous work.
-#' @param ReturnBASiCS Should the object be converted into a 
+#' @param NormFactorFun Function that returns cell-specific scaling normalisation
+#' factors. Default is to use \code{\link[scran]{computeSumFactors}}.
+#' @param ReturnBASiCS Should the object be converted into a
 #' \linkS4class{BASiCS_Chain} object?
 #' @param ... Passed to vb or sampling.
 #' @importFrom rstan vb sampling
-#' 
+#'
 #' @examples
 #' library("BASiCS")
 #' sce <- BASiCS_MockSCE()
 #' BASiCStan(sce, tol_rel_obj = 1e-1)
 #' @export
 BASiCStan <- function(
-    Data, 
+    Data,
     Method = c("vb", "sampling", "optimizing"), 
     WithSpikes = length(altExpNames(Data)) > 0,
     BatchInfo = Data$BatchInfo,
     L = 12,
     PriorMu = c("EmpiricalBayes", "uninformative"),
+    NormFactorFun = scran::calculateSumFactors,
     ReturnBASiCS = TRUE,
     ...
   ) {
@@ -34,16 +37,15 @@ BASiCStan <- function(
   fun <- get(Method, mode = "function")
   PriorMu <- match.arg(PriorMu)
 
-  
   mod <- "basics_regression"
 
-  # if (!WithSpikes) {
-  #   mod <- paste(mod, "nospikes", sep = "_")
-  # }
-  model <- stanmodels[[mod]]
   if (!WithSpikes) {
-    stop("Not implemented yet")
+    mod <- paste(mod, "nospikes", sep = "_")
   }
+  model <- stanmodels[[mod]]
+  # if (!WithSpikes) {
+  #   stop("Not implemented yet")
+  # }
 
   if (WithSpikes) {
     spikes <- assay(altExp(Data))
@@ -73,16 +75,15 @@ BASiCStan <- function(
     PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
   }
   Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
+  size_factors <- match.fun(NormFactors)(Data)
 
   sdata <- list(
-    q = nrow(counts), 
+    q = nrow(counts),
     n = ncol(counts),
-    sq = nrow(spikes),
     p = length(unique(BatchInfo)),
     counts = as.matrix(counts),
-    spikes = spikes,
-    spike_levels = rowData(altExp(Data))[, 2],
     batch_design = batch_design,
+    size_factors = size_factors,
     as = 1,
     bs = 1,
     atheta = 1,
@@ -100,37 +101,60 @@ BASiCStan <- function(
     astwo = 2,
     bstwo = 2
   )
+  if (WithSpikes) {
+    sdata <- c(
+      list(
+        sq = nrow(spikes),
+        spikes = spikes,
+        spike_levels = rowData(altExp(Data))[, 2]
+      ),
+      sdata
+    )
+  }
   fit <- fun(model, data = sdata, ...)
   if (ReturnBASiCS) {
-    stan2basics(fit, gene_names = rownames(counts), cell_names = colnames(counts))
+    .stan2basics(
+      fit,
+      gene_names = rownames(counts),
+      cell_names = colnames(counts),
+      size_factors = size_factors
+    )
   } else {
     fit
   }
 }
 
 #' Convert stan fits to BASiCS_Chain objects.
-#' 
+#'
 #' @param x A stan object
 #' @param gene_names,cell_names Gene and cell names. The reason this argument
 #' exists is that by default, stan fit parameters are not named.
-#' (NOTE: this should be the same order as the
-#' data supplied to BASiCS_stan!!!)
-#' 
+#' NOTE: this must be the same order as the
+#' data supplied to BASiCS_stan.
+#' @param size_factors Cell-specific scaling normalisation factors, to be
+#' stored as part of the chain object when \code{WithSpikes=FALSE}.
+#'
 #' @return A BASiCS_Chain object.
 #' @importFrom rstan extract
-stan2basics <- function(
-    x, 
-    gene_names = NULL, 
-    cell_names = NULL) {
-  
+.stan2basics <- function(
+    x,
+    gene_names = NULL,
+    cell_names = NULL,
+    size_factors = NULL) {
+
   xe <- extract(x)
   parameters <- list(
     mu = xe[["mu"]],
     delta = xe[["delta"]],
     s = xe[["s"]],
     nu = xe[["nu"]],
-    theta = as.matrix(xe[["theta"]])
+    theta = xe[["theta"]]
   )
+  if (is.null(parameters$nu)) {
+    parameters$nu <- t(replicate(nrow(parameters$mu), size_factors))
+    parameters$theta <- matrix(1, nrow = nrow(parameters$mu), ncol = 1)
+    parameters$s <- parameters$nu
+  }
   for (param in c("epsilon", "phi", "beta")) {
     if (!is.null(xe[[param]])) {
       parameters[[param]] <- xe[[param]]
@@ -201,3 +225,5 @@ extract.list <- function(fit) {
     )
     setNames(out, unique(pars))
 }
+
+scran <- scran::calculateSumFactors

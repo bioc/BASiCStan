@@ -4,7 +4,6 @@
 #'
 #' @docType package
 #' @name BASiCStan-package
-#' @aliases BASiCStan
 #' @useDynLib BASiCStan, .registration = TRUE
 #' @import methods
 #' @import Rcpp

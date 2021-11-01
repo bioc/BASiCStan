@@ -1,15 +1,19 @@
 Package: BASiCStan
 Title: Stan implementation of BASiCS
-Version: 0.0.0.9000
+Version: 0.99.0
 Authors@R: 
     c(
-        person(given = "Alan",
-           family = "O'Callaghan",
-           role = c("aut", "cre"),
-           email = "alan.ocallaghan@outlook.com"),
-        person(given = "Catalina",
-           family = "Vallejos",
-           role = c("aut")
+        person(
+            given = "Alan",
+            family = "O'Callaghan",
+            role = c("aut", "cre"),
+            email = "alan.ocallaghan@outlook.com"
+        ),
+        person(
+            given = "Catalina",
+            family = "Vallejos",
+            role = c("aut")
+        )
     )
 Description:
     Provides an interface to use the ADVI, HMC, and MAP inference engines
@@ -18,7 +22,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Biarch: true
 Depends: 
     R (>= 4.0)

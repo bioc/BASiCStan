@@ -3,7 +3,6 @@
 \docType{package}
 \name{BASiCStan-package}
 \alias{BASiCStan-package}
-\alias{BASiCStan}
 \title{The 'BASiCStan' package.}
 \description{
 A DESCRIPTION OF THE PACKAGE

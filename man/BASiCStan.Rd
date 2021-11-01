@@ -11,6 +11,7 @@ BASiCStan(
   BatchInfo = Data$BatchInfo,
   L = 12,
   PriorMu = c("EmpiricalBayes", "uninformative"),
+  NormFactorFun = scran::calculateSumFactors,
   ReturnBASiCS = TRUE,
   ...
 )
@@ -31,6 +32,9 @@ joint prior for mu and delta.}
 \item{PriorMu}{Type of prior to use for mean expression. Default is
 "EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
 previous work.}
+
+\item{NormFactorFun}{Function that returns cell-specific scaling normalisation
+factors. Default is to use \code{\link[scran]{computeSumFactors}}.}
 
 \item{ReturnBASiCS}{Should the object be converted into a
 \linkS4class{BASiCS_Chain} object?}
