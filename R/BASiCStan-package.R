@@ -10,7 +10,7 @@
 #' @importFrom rstan sampling
 #' @importFrom SingleCellExperiment counts logcounts sizeFactors altExp altExpNames
 #' @importFrom SummarizedExperiment assay rowData
-#' @importFrom stats model.matrix
+#' @importFrom stats model.matrix setNames
 #'
 #' @references
 #' Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. https://mc-stan.org

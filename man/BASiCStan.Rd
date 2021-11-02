@@ -2,7 +2,7 @@
 % Please edit documentation in R/BASiCStan.R
 \name{BASiCStan}
 \alias{BASiCStan}
-\title{Stan implementation of BASiCS (with spike-in genes only)}
+\title{Stan implementation of BASiCS.}
 \usage{
 BASiCStan(
   Data,
@@ -19,8 +19,9 @@ BASiCStan(
 \arguments{
 \item{Data}{SingleCellExperiment object}
 
-\item{Method}{Inference method: Variational Bayes ("vb") or Hamiltonian
-Monte Carlo ("sampling").}
+\item{Method}{Inference method. One of: \code{"vb"} for Variational Bayes,
+\code{"sampling"} for Hamiltonian Monte Carlo,
+\code{"optimizing"} for or maximum \emph{a posteriori} estimation.}
 
 \item{WithSpikes}{Do the data contain spike-in genes? See BASiCS for details.}
 
@@ -42,7 +43,9 @@ factors. Default is to use \code{\link[scran]{computeSumFactors}}.}
 \item{...}{Passed to vb or sampling.}
 }
 \description{
-Stan implementation of BASiCS (with spike-in genes only)
+The stan programming language enables the use of MAP, VB, and HMC inference.
+Only the regression mode featuring a joint prior between mean and
+overdispersion parameters is implemented
 }
 \examples{
 library("BASiCS")

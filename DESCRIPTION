@@ -43,3 +43,11 @@ LinkingTo:
     rstan (>= 2.18.1),
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
+biocViews: ImmunoOncology, Normalization, Sequencing, RNASeq, Software, 
+        GeneExpression, Transcriptomics, SingleCell, 
+        DifferentialExpression, Bayesian, CellBiology, ImmunoOncology
+URL: https://github.com/Alanocallaghan/BASiCStan
+BugReports: https://github.com/Alanocallaghan/BASiCStan/issues
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,7 +1,13 @@
-#' Stan implementation of BASiCS (with spike-in genes only)
+#' Stan implementation of BASiCS.
+#'
+#' The stan programming language enables the use of MAP, VB, and HMC inference.
+#' Only the regression mode featuring a joint prior between mean and
+#' overdispersion parameters is implemented
+#'
 #' @param Data SingleCellExperiment object
-#' @param Method Inference method: Variational Bayes ("vb") or Hamiltonian
-#' Monte Carlo ("sampling").
+#' @param Method Inference method. One of: \code{"vb"} for Variational Bayes,
+#' \code{"sampling"} for Hamiltonian Monte Carlo,
+#' \code{"optimizing"} for or maximum \emph{a posteriori} estimation.
 #' @param WithSpikes Do the data contain spike-in genes? See BASiCS for details.
 #' @param BatchInfo Vector describing which batch each cell is from.
 #' @param L Number of regression terms (including slope and intercept) to use in
@@ -9,8 +15,9 @@
 #' @param PriorMu Type of prior to use for mean expression. Default is
 #' "EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
 #' previous work.
-#' @param NormFactorFun Function that returns cell-specific scaling normalisation
-#' factors. Default is to use \code{\link[scran]{computeSumFactors}}.
+#' @param NormFactorFun Function that returns cell-specific scaling
+#' normalisation factors. See \code{\link[scran]{computeSumFactors}} for
+#' details on the default.
 #' @param ReturnBASiCS Should the object be converted into a
 #' \linkS4class{BASiCS_Chain} object?
 #' @param ... Passed to vb or sampling.
@@ -30,6 +37,7 @@ BASiCStan <- function(
     PriorMu = c("EmpiricalBayes", "uninformative"),
     NormFactorFun = scran::calculateSumFactors,
     ReturnBASiCS = TRUE,
+    Verbose = TRUE,
     ...
   ) {
 
@@ -75,7 +83,7 @@ BASiCStan <- function(
     PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
   }
   Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
-  size_factors <- match.fun(NormFactors)(Data)
+  size_factors <- match.fun(NormFactorFun)(Data)
 
   sdata <- list(
     q = nrow(counts),
@@ -111,7 +119,11 @@ BASiCStan <- function(
       sdata
     )
   }
-  fit <- fun(model, data = sdata, ...)
+  if (Verbose) {
+      fit <- fun(model, data = sdata, ...)
+  } else {
+      capture.output(fit <- fun(model, data = sdata, ...))
+  }
   if (ReturnBASiCS) {
     .stan2basics(
       fit,
@@ -142,57 +154,59 @@ BASiCStan <- function(
     cell_names = NULL,
     size_factors = NULL) {
 
-  xe <- extract(x)
-  parameters <- list(
-    mu = xe[["mu"]],
-    delta = xe[["delta"]],
-    s = xe[["s"]],
-    nu = xe[["nu"]],
-    theta = xe[["theta"]]
-  )
-  if (is.null(parameters$nu)) {
-    parameters$nu <- t(replicate(nrow(parameters$mu), size_factors))
-    parameters$theta <- matrix(1, nrow = nrow(parameters$mu), ncol = 1)
-    parameters$s <- parameters$nu
-  }
-  for (param in c("epsilon", "phi", "beta")) {
-    if (!is.null(xe[[param]])) {
-      parameters[[param]] <- xe[[param]]
+    xe <- extract(x)
+    parameters <- list(
+        mu = xe[["mu"]],
+        delta = xe[["delta"]],
+        s = xe[["s"]],
+        nu = xe[["nu"]],
+        theta = xe[["theta"]]
+    )
+    if (is.null(parameters$nu)) {
+        parameters$nu <- t(replicate(nrow(parameters$mu), size_factors))
+        parameters$theta <- matrix(1, nrow = nrow(parameters$mu), ncol = 1)
+        parameters$s <- parameters$nu
     }
-  }
-  gp <- intersect(c("mu", "delta", "epsilon"), names(parameters))
-  cp <- intersect(c("s", "nu", "phi"), names(parameters))
-  if (!is.null(xe[["beta"]])) {
-    parameters[["beta"]] <- xe[["beta"]]
-  }
-  if (is.null(gene_names)) {
-    gene_names <- paste("Gene", seq_len(ncol(xe[["mu"]])))
-  }
-  if (is.null(cell_names)) {
-    cell_names <- paste("Cell", seq_len(ncol(xe[["nu"]])))
-  }
-  parameters[gp] <- lapply(gp, function(x) {
-    colnames(parameters[[x]]) <- gene_names
-    parameters[[x]]
-  })
-  parameters[cp] <- lapply(cp, function(x) {
-    colnames(parameters[[x]]) <- cell_names
-    parameters[[x]]
-  })
+    for (param in c("epsilon", "phi", "beta")) {
+        if (!is.null(xe[[param]])) {
+            parameters[[param]] <- xe[[param]]
+        }
+    }
+    gp <- intersect(c("mu", "delta", "epsilon"), names(parameters))
+    cp <- intersect(c("s", "nu", "phi"), names(parameters))
+    if (!is.null(xe[["beta"]])) {
+        parameters[["beta"]] <- xe[["beta"]]
+    }
+    if (is.null(gene_names)) {
+        gene_names <- paste("Gene", seq_len(ncol(xe[["mu"]])))
+    }
+    if (is.null(cell_names)) {
+        cell_names <- paste("Cell", seq_len(ncol(xe[["nu"]])))
+    }
+    parameters[gp] <- lapply(gp, function(x) {
+        colnames(parameters[[x]]) <- gene_names
+        parameters[[x]]
+    })
+    parameters[cp] <- lapply(cp,
+        function(x) {
+            colnames(parameters[[x]]) <- cell_names
+            parameters[[x]]
+        }
+    )
 
-  new("BASiCS_Chain", parameters = parameters)
+    new("BASiCS_Chain", parameters = parameters)
 }
 
 vb <- function(..., tol_rel_obj = 1e-3) {
-  rstan::vb(..., tol_rel_obj = tol_rel_obj)
+    rstan::vb(..., tol_rel_obj = tol_rel_obj)
 }
 
 sampling <- function(...) {
-  rstan::sampling(...)
+    rstan::sampling(...)
 }
 
 optimizing <- function(...) {
-  rstan::optimizing(...)
+    rstan::optimizing(...)
 }
 
 extract <- function(fit) {
@@ -225,5 +239,3 @@ extract.list <- function(fit) {
     )
     setNames(out, unique(pars))
 }
-
-scran <- scran::calculateSumFactors
