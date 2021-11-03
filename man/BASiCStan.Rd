@@ -8,11 +8,13 @@ BASiCStan(
   Data,
   Method = c("vb", "sampling", "optimizing"),
   WithSpikes = length(altExpNames(Data)) > 0,
+  Regression = TRUE,
   BatchInfo = Data$BatchInfo,
   L = 12,
   PriorMu = c("EmpiricalBayes", "uninformative"),
   NormFactorFun = scran::calculateSumFactors,
   ReturnBASiCS = TRUE,
+  Verbose = TRUE,
   ...
 )
 }
@@ -23,7 +25,14 @@ BASiCStan(
 \code{"sampling"} for Hamiltonian Monte Carlo,
 \code{"optimizing"} for or maximum \emph{a posteriori} estimation.}
 
-\item{WithSpikes}{Do the data contain spike-in genes? See BASiCS for details.}
+\item{WithSpikes}{Do the data contain spike-in genes? See BASiCS for details.
+When \code{WithSpikes=FALSE}, the cell-specific scaling normalisation
+factors are fixed; use \code{NormFactorFun} to specify how size factors
+should be generated or extracted.}
+
+\item{Regression}{Use joint prior for mean and overdispersion parameters?
+Included for compatibility with \code{\link[BASiCS]{BASiCS_MCMC}},
+but only \code{TRUE} is supported.}
 
 \item{BatchInfo}{Vector describing which batch each cell is from.}
 
@@ -34,11 +43,15 @@ joint prior for mu and delta.}
 "EmpiricalBayes", but "uninformative" is the prior used in Eling et al. and
 previous work.}
 
-\item{NormFactorFun}{Function that returns cell-specific scaling normalisation
-factors. Default is to use \code{\link[scran]{computeSumFactors}}.}
+\item{NormFactorFun}{Function that returns cell-specific scaling
+normalisation factors. See \code{\link[scran]{computeSumFactors}} for
+details on the default.}
 
 \item{ReturnBASiCS}{Should the object be converted into a
 \linkS4class{BASiCS_Chain} object?}
+
+\item{Verbose}{Should output of the stan commands be printed to
+the terminal?}
 
 \item{...}{Passed to vb or sampling.}
 }
@@ -49,6 +62,11 @@ overdispersion parameters is implemented
 }
 \examples{
 library("BASiCS")
-sce <- BASiCS_MockSCE()
-BASiCStan(sce, tol_rel_obj = 1e-1)
+sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
+
+fit_spikes <- BASiCStan(sce)
+
+## uses fixed scaling normalisation factors
+fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE)
+
 }

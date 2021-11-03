@@ -1,12 +1,11 @@
 functions {
   matrix designMatrix(int l, 
-                      vector mu, 
+                      vector log_mu, 
                       real rbf_variance,
                       vector ml,
                       int q) {
 
-    // vector [q] x = log(mu);
-    vector [q] x = mu;
+    vector [q] x = log_mu;
     real h;
     matrix [q, l] X;
     h = (ml[2] - ml[1]) * rbf_variance;
@@ -52,7 +51,7 @@ data {
 }
 
 parameters {
-  vector <lower=0> [q] mu;
+  vector [q] log_mu;
   vector <lower=0> [q] delta;
   vector [l] beta;
   real <lower=0> stwo;
@@ -60,7 +59,7 @@ parameters {
 }
 
 transformed parameters {
-  vector [q] fu = designMatrix(l, mu, rbf_variance, ml, q) * beta;
+  vector [q] fu = designMatrix(l, log_mu, rbf_variance, ml, q) * beta;
   vector [q] epsilon = log(delta) - fu;
 }
 
@@ -68,12 +67,12 @@ transformed parameters {
 model {
   stwo ~ inv_gamma(astwo, bstwo);
   beta ~ multi_normal(mbeta, stwo * vbeta);
-  mu ~ normal(mu_mu, smu);
+  log_mu ~ normal(mu_mu, smu);
   lambda ~ gamma(eta / 2, eta / 2);
   delta ~ lognormal(fu, stwo ./ lambda);
   for (j in 1:n) {
     counts[, j] ~ neg_binomial_2_log(
-      (log(size_factors[j]) + mu),
+      (log(size_factors[j]) + log_mu),
       1 ./ delta
     );
   }

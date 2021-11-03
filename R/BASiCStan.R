@@ -9,6 +9,12 @@
 #' \code{"sampling"} for Hamiltonian Monte Carlo,
 #' \code{"optimizing"} for or maximum \emph{a posteriori} estimation.
 #' @param WithSpikes Do the data contain spike-in genes? See BASiCS for details.
+#' When \code{WithSpikes=FALSE}, the cell-specific scaling normalisation 
+#' factors are fixed; use \code{NormFactorFun} to specify how size factors
+#' should be generated or extracted.
+#' @param Regression Use joint prior for mean and overdispersion parameters?
+#' Included for compatibility with \code{\link[BASiCS]{BASiCS_MCMC}},
+#' but only \code{TRUE} is supported.
 #' @param BatchInfo Vector describing which batch each cell is from.
 #' @param L Number of regression terms (including slope and intercept) to use in
 #' joint prior for mu and delta.
@@ -20,18 +26,28 @@
 #' details on the default.
 #' @param ReturnBASiCS Should the object be converted into a
 #' \linkS4class{BASiCS_Chain} object?
+#' @param Verbose Should output of the stan commands be printed to
+#' the terminal?
 #' @param ... Passed to vb or sampling.
 #' @importFrom rstan vb sampling
 #'
 #' @examples
 #' library("BASiCS")
-#' sce <- BASiCS_MockSCE()
-#' BASiCStan(sce, tol_rel_obj = 1e-1)
+#' sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
+#'
+#' fit_spikes <- BASiCStan(sce)
+#'
+#' ## uses fixed scaling normalisation factors
+#' fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE)
+#'
+#' @importFrom BASiCS BASiCS_PriorParam
+#' @importFrom utils capture.output
 #' @export
 BASiCStan <- function(
     Data,
-    Method = c("vb", "sampling", "optimizing"), 
+    Method = c("vb", "sampling", "optimizing"),
     WithSpikes = length(altExpNames(Data)) > 0,
+    Regression = TRUE,
     BatchInfo = Data$BatchInfo,
     L = 12,
     PriorMu = c("EmpiricalBayes", "uninformative"),
@@ -41,99 +57,102 @@ BASiCStan <- function(
     ...
   ) {
 
-  Method <- match.arg(Method)
-  fun <- get(Method, mode = "function")
-  PriorMu <- match.arg(PriorMu)
+    if (!Regression) {
+        stop("Only Regression=TRUE is supported.")
+    }
+    Method <- match.arg(Method)
+    fun <- get(Method, mode = "function")
+    PriorMu <- match.arg(PriorMu)
 
-  mod <- "basics_regression"
+    mod <- "basics_regression"
 
-  if (!WithSpikes) {
-    mod <- paste(mod, "nospikes", sep = "_")
-  }
-  model <- stanmodels[[mod]]
-  # if (!WithSpikes) {
-  #   stop("Not implemented yet")
-  # }
+    if (!WithSpikes) {
+        mod <- paste(mod, "nospikes", sep = "_")
+    }
+    model <- stanmodels[[mod]]
+    # if (!WithSpikes) {
+    #     stop("Not implemented yet")
+    # }
 
-  if (WithSpikes) {
-    spikes <- assay(altExp(Data))
-    counts <- counts(Data)
-  } else {
-    spikes <- NULL
-    counts <- counts(Data)
-  }
-  if (is.null(BatchInfo) | length(unique(BatchInfo)) == 1) {
-    BatchInfo <- 1
-    batch_design <- matrix(1, nrow = ncol(Data))
-  } else {
-    batch_design <- model.matrix(~0 + factor(BatchInfo))
-  }
+    if (WithSpikes) {
+        spikes <- assay(altExp(Data))
+        counts <- counts(Data)
+    } else {
+        spikes <- NULL
+        counts <- counts(Data)
+    }
+    if (is.null(BatchInfo) | length(unique(BatchInfo)) == 1) {
+        BatchInfo <- 1
+        batch_design <- matrix(1, nrow = ncol(Data))
+    } else {
+        batch_design <- model.matrix(~0 + factor(BatchInfo))
+    }
 
-  PP <- BASiCS::BASiCS_PriorParam(
-    Data,
-    PriorMu = "EmpiricalBayes"
-  )
-  start <- BASiCS:::.BASiCS_MCMC_Start(
-    Data,
-    PriorParam = PP,
-    Regression = TRUE,
-    WithSpikes = WithSpikes
-  )
-  if (PriorMu == "EmpiricalBayes") {
-    PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
-  }
-  Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
-  size_factors <- match.fun(NormFactorFun)(Data)
-
-  sdata <- list(
-    q = nrow(counts),
-    n = ncol(counts),
-    p = length(unique(BatchInfo)),
-    counts = as.matrix(counts),
-    batch_design = batch_design,
-    size_factors = size_factors,
-    as = 1,
-    bs = 1,
-    atheta = 1,
-    btheta = 1,
-    mu_mu = PP$mu.mu,
-    smu = sqrt(0.5),
-    sdelta = sqrt(0.5),
-    aphi = rep(1, ncol(counts)),
-    mbeta = rep(0, L),
-    ml = Locations[, 1],
-    l = L,
-    vbeta = diag(L),
-    rbf_variance = 1.2,
-    eta = 5,
-    astwo = 2,
-    bstwo = 2
-  )
-  if (WithSpikes) {
-    sdata <- c(
-      list(
-        sq = nrow(spikes),
-        spikes = spikes,
-        spike_levels = rowData(altExp(Data))[, 2]
-      ),
-      sdata
+    PP <- BASiCS_PriorParam(
+        Data,
+        PriorMu = "EmpiricalBayes"
     )
-  }
-  if (Verbose) {
-      fit <- fun(model, data = sdata, ...)
-  } else {
-      capture.output(fit <- fun(model, data = sdata, ...))
-  }
-  if (ReturnBASiCS) {
-    .stan2basics(
-      fit,
-      gene_names = rownames(counts),
-      cell_names = colnames(counts),
-      size_factors = size_factors
+    start <- BASiCS:::.BASiCS_MCMC_Start(
+        Data,
+        PriorParam = PP,
+        Regression = TRUE,
+        WithSpikes = WithSpikes
     )
-  } else {
-    fit
-  }
+    if (PriorMu == "EmpiricalBayes") {
+        PP$mu.mu <- BASiCS:::.EmpiricalBayesMu(Data, 0.5, WithSpikes)
+    }
+    Locations <- BASiCS:::.estimateRBFLocations(start$mu0, L, RBFMinMax = FALSE)
+    size_factors <- match.fun(NormFactorFun)(Data)
+
+    sdata <- list(
+        q = nrow(counts),
+        n = ncol(counts),
+        p = length(unique(BatchInfo)),
+        counts = as.matrix(counts),
+        batch_design = batch_design,
+        size_factors = size_factors,
+        as = 1,
+        bs = 1,
+        atheta = 1,
+        btheta = 1,
+        mu_mu = PP$mu.mu,
+        smu = sqrt(0.5),
+        sdelta = sqrt(0.5),
+        aphi = rep(1, ncol(counts)),
+        mbeta = rep(0, L),
+        ml = Locations[, 1],
+        l = L,
+        vbeta = diag(L),
+        rbf_variance = 1.2,
+        eta = 5,
+        astwo = 2,
+        bstwo = 2
+    )
+    if (WithSpikes) {
+        sdata <- c(
+            list(
+                sq = nrow(spikes),
+                spikes = spikes,
+                spike_levels = rowData(altExp(Data))[, 2]
+            ),
+            sdata
+        )
+    }
+    if (Verbose) {
+        fit <- fun(model, data = sdata, ...)
+    } else {
+        capture.output(fit <- fun(model, data = sdata, ...))
+    }
+    if (ReturnBASiCS) {
+        .stan2basics(
+            fit,
+            gene_names = rownames(counts),
+            cell_names = colnames(counts),
+            size_factors = size_factors
+        )
+    } else {
+        fit
+    }
 }
 
 #' Convert stan fits to BASiCS_Chain objects.
@@ -156,7 +175,7 @@ BASiCStan <- function(
 
     xe <- extract(x)
     parameters <- list(
-        mu = xe[["mu"]],
+        mu = exp(xe[["log_mu"]]),
         delta = xe[["delta"]],
         s = xe[["s"]],
         nu = xe[["nu"]],
@@ -206,7 +225,7 @@ sampling <- function(...) {
 }
 
 optimizing <- function(...) {
-    rstan::optimizing(...)
+    rstan::optimizing(..., verbose = TRUE)
 }
 
 extract <- function(fit) {
