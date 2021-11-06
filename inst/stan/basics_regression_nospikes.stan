@@ -51,7 +51,7 @@ data {
 }
 
 parameters {
-  vector [q] mu;
+  vector <lower=0> [q] mu;
   vector <lower=0> [q] delta;
   vector [l] beta;
   real <lower=0> stwo;
