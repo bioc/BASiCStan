@@ -175,7 +175,7 @@ BASiCStan <- function(
 
     xe <- extract(x)
     parameters <- list(
-        mu = exp(xe[["log_mu"]]),
+        mu = xe[["mu"]],
         delta = xe[["delta"]],
         s = xe[["s"]],
         nu = xe[["nu"]],
