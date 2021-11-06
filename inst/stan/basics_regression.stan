@@ -84,7 +84,7 @@ model {
   nu ~ gamma(1 ./ theta_vector, 1 ./ (s .* theta_vector));
   for (j in 1:n) {
     counts[, j] ~ neg_binomial_2(
-      (phi[j] + nu[j] + mu),
+      phi[j] * nu[j] * mu,
       1 ./ delta
     );
     spikes[, j] ~ poisson(nu[j] * spike_levels);
