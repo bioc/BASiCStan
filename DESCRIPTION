@@ -30,6 +30,9 @@ Depends:
     BASiCS
 Imports:
     methods,
+    glmGamPoi,
+    scran,
+    scuttle,
     SingleCellExperiment,
     SummarizedExperiment,
     Rcpp (>= 0.12.0),
