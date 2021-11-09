@@ -1,13 +1,12 @@
 functions {
   matrix designMatrix(
       int l,
-      vector mu, 
+      vector log_mu,
       real rbf_variance,
       vector ml,
       int q
     ) {
 
-    vector [q] x = log(mu);
     real h;
     matrix [q, l] X;
     h = (ml[2] - ml[1]) * rbf_variance;
@@ -16,11 +15,11 @@ functions {
         X[i, j] = 1;
       }
     }
-    X[, 2] = x;
+    X[, 2] = log_mu;
     for (i in 1:(l - 2)) {
       vector[q] tmp;
       for (j in 1:q) {
-        tmp[j] = pow(x[j] - ml[i], 2);
+        tmp[j] = pow(log_mu[j] - ml[i], 2);
       }
       X[, i + 2] = exp(-0.5 * tmp / pow(h, 2));
     }
@@ -55,7 +54,7 @@ data {
 }
 
 parameters {
-  vector <lower=0> [q] mu;
+  vector [q] log_mu;
   vector <lower=0> [q] delta;
   simplex[n] tphi;
   real <lower=0> nu[n];
@@ -67,9 +66,10 @@ parameters {
 }
 
 transformed parameters {
-  vector [n] theta_vector = batch_design * theta;
-  vector [n] phi = tphi * n;
-  vector [q] fu = designMatrix(l, mu, rbf_variance, ml, q) * beta;
+  vector <lower=0> [n] theta_vector = batch_design * theta;
+  vector <lower=0> [n] phi = tphi * n;
+  vector <lower=0> [q] mu = exp(log_mu);
+  vector [q] fu = designMatrix(l, log_mu, rbf_variance, ml, q) * beta;
   vector [q] epsilon = log(delta) - fu;
 }
 
@@ -79,14 +79,14 @@ model {
   tphi ~ dirichlet(aphi);
   stwo ~ inv_gamma(astwo, bstwo);
   beta ~ multi_normal(mbeta, stwo * vbeta);
-  mu ~ lognormal(mu_mu, smu);
+  log_mu ~ normal(mu_mu, smu);
   lambda ~ gamma(eta / 2, eta / 2);
   delta ~ lognormal(fu, stwo ./ sqrt(lambda));
   s ~ gamma(as, bs);
   nu ~ gamma(1 ./ theta_vector, 1 ./ (s .* theta_vector));
   for (j in 1:n) {
-    counts[, j] ~ neg_binomial_2(
-      phi[j] * nu[j] * mu,
+    counts[, j] ~ neg_binomial_2_log(
+      log(phi[j]) + log(nu[j]) + log_mu,
       1 ./ delta
     );
     spikes[, j] ~ poisson(nu[j] * spike_levels);

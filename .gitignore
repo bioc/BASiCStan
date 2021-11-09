@@ -3,3 +3,4 @@ src/stanExports*
 .Rprofile
 /doc/
 /Meta/
+inst/doc
