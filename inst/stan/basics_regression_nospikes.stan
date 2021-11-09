@@ -1,9 +1,11 @@
 functions {
-  matrix designMatrix(int l, 
-                      vector mu, 
-                      real rbf_variance,
-                      vector ml,
-                      int q) {
+  matrix designMatrix(
+      int l, 
+      vector mu, 
+      real rbf_variance,
+      vector ml,
+      int q
+    ) {
 
     vector [q] x = log(mu);
     real h;
@@ -69,7 +71,7 @@ model {
   beta ~ multi_normal(mbeta, stwo * vbeta);
   mu ~ lognormal(mu_mu, smu);
   lambda ~ gamma(eta / 2, eta / 2);
-  delta ~ lognormal(fu, stwo ./ lambda);
+  delta ~ lognormal(fu, stwo ./ sqrt(lambda));
   for (j in 1:n) {
     counts[, j] ~ neg_binomial_2(
       size_factors[j] * mu,

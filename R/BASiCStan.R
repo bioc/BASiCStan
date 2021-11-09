@@ -139,9 +139,21 @@ BASiCStan <- function(
         )
     }
     if (Verbose) {
-        fit <- fun(model, data = sdata, ...)
+        fit <- fun(
+            model,
+            data = sdata,
+            init = .init(Data, L, length(unique(BatchInfo)), size_factors),
+            ...
+        )
     } else {
-        capture.output(fit <- fun(model, data = sdata, ...))
+        capture.output(
+            fit <- fun(
+                model,
+                data = sdata,
+                init = .init(Data, L, length(unique(BatchInfo)), size_factors),
+                ...
+            )
+        )
     }
     if (ReturnBASiCS) {
         .stan2basics(
@@ -214,6 +226,24 @@ BASiCStan <- function(
     )
 
     new("BASiCS_Chain", parameters = parameters)
+}
+
+.init <- function(Data, L, P, SizeFactors) {
+    Data <- scuttle::logNormCounts(Data, size.factors = SizeFactors)
+    lc <- logcounts(Data)
+    gp <- glmGamPoi::glm_gp(Data)
+    list(
+        mu = exp(rowMeans(lc)),
+        delta = gp$overdispersions + 1e-2,
+        epsilon = rep(0, nrow(Data)),
+        theta = rep(1, P),
+        beta = rep(0, L),
+        lambda = rep(1, nrow(Data)),
+        stwo = 1,
+        nu = SizeFactors,
+        s = rep(1, ncol(Data)),
+        phi = rep(1, ncol(Data))
+    )
 }
 
 vb <- function(..., tol_rel_obj = 1e-3) {
