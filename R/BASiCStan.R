@@ -236,7 +236,7 @@ BASiCStan <- function(
         mu = exp(rowMeans(lc)),
         delta = gp$overdispersions + 1e-2,
         epsilon = rep(0, nrow(Data)),
-        theta = rep(1, P),
+        theta = as.array(rep(1, P)),
         beta = rep(0, L),
         lambda = rep(1, nrow(Data)),
         stwo = 1,
