@@ -8,7 +8,8 @@
 #' @import methods
 #' @import Rcpp
 #' @importFrom rstan sampling
-#' @importFrom SingleCellExperiment counts logcounts sizeFactors altExp altExpNames
+#' @importFrom SingleCellExperiment counts logcounts sizeFactors altExp
+#' altExpNames
 #' @importFrom SummarizedExperiment assay rowData
 #' @importFrom stats model.matrix setNames
 #' @importFrom BASiCS BASiCS_PriorParam
@@ -18,6 +19,7 @@
 #' @importFrom rstantools posterior_predict
 #'
 #' @references
-#' Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.21.2. https://mc-stan.org
+#' Stan Development Team (2020). RStan: the R interface to Stan.
+#' R package version 2.21.2. https://mc-stan.org
 #'
 NULL

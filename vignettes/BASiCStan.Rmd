@@ -3,15 +3,15 @@ title: "An introduction to BASiCStan"
 subtitle: "A Stan implementation of BASiCS"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{BASiCStan}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{BASiCStan}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -42,7 +42,13 @@ between mean and over-dispersion parameters, corresponding to
 `Regression = TRUE`, is the only supported mode in `BASiCStan()`.
 
 ```{r basics, results = "hide"}
-amwg_fit <- BASiCS_MCMC(sce, N = 2000, Thin = 10, Burn = 1000, Regression = TRUE)
+amwg_fit <- BASiCS_MCMC(
+    sce,
+    N = 2000,
+    Thin = 10,
+    Burn = 1000,
+    Regression = TRUE
+)
 stan_fit <- BASiCStan(sce)
 ```
 
