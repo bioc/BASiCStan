@@ -55,6 +55,9 @@ the terminal?}
 
 \item{...}{Passed to vb or sampling.}
 }
+\value{
+An object of class \code{\linkS4class{BASiCS_Chain}}.
+}
 \description{
 The stan programming language enables the use of MAP, VB, and HMC inference.
 Only the regression mode featuring a joint prior between mean and

@@ -31,6 +31,7 @@
 #' @param ... Passed to vb or sampling.
 #' @importFrom rstan vb sampling
 #'
+#' @return An object of class \code{\linkS4class{BASiCS_Chain}}.
 #' @examples
 #' library("BASiCS")
 #' sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)

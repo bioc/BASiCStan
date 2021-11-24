@@ -17,22 +17,29 @@ Authors@R:
         )
     )
 Description:
-    Provides an interface to use the ADVI, HMC, and MAP inference engines
-    in the Stan programming language for inference with BASiCS.
-License: GPL (>= 3)
+    Provides an interface to infer the parameters of BASiCS using the
+    variational inference, Markov chain Monte Carlo, and maximum a posteriori
+    inference engines in the Stan programming language.
+    BASiCS is a Bayesian hierarchical model that uses an adaptive Metropolis
+    within Gibbs sampling scheme. Alternative inference methods provided by
+    Stan may be preferable in some situations, for example for particularly
+    large data or posterior distributions with difficult geometries.
+License: GPL-3
 Encoding: UTF-8
-LazyData: true
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Biarch: true
 Depends: 
-    R (>= 4.0),
+    R (>= 4.1),
     BASiCS
 Imports:
     methods,
     glmGamPoi,
     scran,
     scuttle,
+    stats,
+    utils,
     SingleCellExperiment,
     SummarizedExperiment,
     Rcpp (>= 0.12.0),
@@ -53,5 +60,6 @@ biocViews: ImmunoOncology, Normalization, Sequencing, RNASeq, Software,
 URL: https://github.com/Alanocallaghan/BASiCStan
 BugReports: https://github.com/Alanocallaghan/BASiCStan/issues
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr
 Config/testthat/edition: 3

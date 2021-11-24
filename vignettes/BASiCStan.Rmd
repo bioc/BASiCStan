@@ -1,0 +1,57 @@
+---
+title: "An introduction to BASiCStan"
+subtitle: "A Stan implementation of BASiCS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BASiCStan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Outline
+
+This package implements alternative inference methods for
+[BASiCS](https://bioconductor.org/packages/release/bioc/html/BASiCS.html).
+The original package uses adaptive Metropolis within Gibbs sampling, while
+BASiCStan uses Stan to enable the use of maximum *a posterior*, variational
+inference, and Hamiltonian Monte Carlo to infer parameters. These each
+have advantages for different use cases.
+
+
+# Use
+
+To use `BASiCStan`, we can first use `BASICS_MockSCE()` to generate an
+toy example dataset. We will also set a seed for reproducibility.
+
+```{r setup}
+library("BASiCStan")
+set.seed(42)
+sce <- BASiCS_MockSCE()
+```
+
+The interface for running MCMC using BASiCS and using alternative inference
+methods using Stan is very similar. It is worth noting that the joint prior
+between mean and over-dispersion parameters, corresponding to
+`Regression = TRUE`, is the only supported mode in `BASiCStan()`.
+
+```{r basics, results = "hide"}
+amwg_fit <- BASiCS_MCMC(sce, N = 2000, Thin = 10, Burn = 1000, Regression = TRUE)
+stan_fit <- BASiCStan(sce)
+```
+
+The output of `BASiCStan()` is an object of class `BASiCS_Chain`, similar to
+the output of `BASiCS_MCMC()`. Therefore, . For example, we can plot the
+relationship between mean and over-dispersion estimated using the joint
+regression prior:
+
+```{r}
+BASiCS_ShowFit(amwg_fit)
+BASiCS_ShowFit(stan_fit)
+```
