@@ -251,8 +251,12 @@ vb <- function(..., tol_rel_obj = 1e-3) {
     rstan::vb(..., tol_rel_obj = tol_rel_obj)
 }
 
-sampling <- function(...) {
-    rstan::sampling(...)
+sampling <- function(..., init, chains = 1) {
+    init <- rep(init, chains)
+    if (chains == 1) {
+        init <- list(init)
+    }
+    rstan::sampling(..., init = init, chains = chains)
 }
 
 optimizing <- function(...) {
