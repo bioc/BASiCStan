@@ -247,8 +247,8 @@ BASiCStan <- function(
     )
 }
 
-vb <- function(..., tol_rel_obj = 1e-3) {
-    rstan::vb(..., tol_rel_obj = tol_rel_obj)
+vb <- function(..., iter = 25000, tol_rel_obj = 1e-3) {
+    rstan::vb(..., iter = iter, tol_rel_obj = tol_rel_obj)
 }
 
 sampling <- function(..., init, chains = 1) {
