@@ -71,7 +71,7 @@ jobs:
           
       - name: BiocCheck
         if: runner.os == 'Linux'
-        uses: insightsengineering/bioc-check-action@v1
+        uses: Alanocallaghan/bioc-check-action@v1
 
       - name: Show testthat output
         if: always()
