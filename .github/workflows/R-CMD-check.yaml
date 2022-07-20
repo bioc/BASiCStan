@@ -64,8 +64,13 @@ jobs:
       - name: Check
         uses: r-lib/actions/check-r-package@v1
 
-
+      - name: mkdir
+        if: runner.os == 'Linux'
+        run: |
+          sudo mkdir -p /__w/_temp/Library
+          
       - name: BiocCheck
+        if: runner.os == 'Linux'
         uses: insightsengineering/bioc-check-action@v1
 
       - name: Show testthat output
