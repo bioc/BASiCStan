@@ -67,9 +67,9 @@ overdispersion parameters is implemented
 library("BASiCS")
 sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
 
-fit_spikes <- BASiCStan(sce)
+fit_spikes <- BASiCStan(sce, tol_rel_obj = 1)
 
 ## uses fixed scaling normalisation factors
-fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE)
+fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE, tol_rel_obj = 1)
 
 }

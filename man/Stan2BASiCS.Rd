@@ -27,6 +27,6 @@ Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.
 library("BASiCS")
 sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
 
-fit_spikes <- BASiCStan(sce, ReturnBASiCS = FALSE)
+fit_spikes <- BASiCStan(sce, ReturnBASiCS = FALSE, tol_rel_obj = 1)
 summary(fit_spikes)
 }

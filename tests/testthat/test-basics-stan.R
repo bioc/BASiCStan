@@ -88,7 +88,7 @@ test_that("accuracy test", {
             colMedians(fit1@parameters$epsilon),
             use = "complete.obs"
         ),
-        0.6
+        0.5
     )
     ## no spikes needs offset correcting
     fit2 <- BASiCS:::.offset_correct(fit2, fitb)
