@@ -3,3 +3,5 @@
 ^\.travis\.yaml$
 ^LICENSE\.md$
 .github
+^doc$
+^Meta$

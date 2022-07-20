@@ -1,7 +1,7 @@
 Package: BASiCStan
 Title: Stan implementation of BASiCS
-Version: 0.99.5
-Date: 2022-03-12
+Version: 0.99.6
+Date: 2022-07-20
 Authors@R: 
     c(
         person(
@@ -18,21 +18,23 @@ Authors@R:
     )
 Description:
     Provides an interface to infer the parameters of BASiCS using the
-    variational inference, Markov chain Monte Carlo, and maximum a posteriori
-    inference engines in the Stan programming language.
-    BASiCS is a Bayesian hierarchical model that uses an adaptive Metropolis
-    within Gibbs sampling scheme. Alternative inference methods provided by
-    Stan may be preferable in some situations, for example for particularly
-    large data or posterior distributions with difficult geometries.
+    variational inference (ADVI), Markov chain Monte Carlo (NUTS),
+    and maximum a posteriori (BFGS) inference engines in the Stan programming
+    language. BASiCS is a Bayesian hierarchical model that uses an adaptive
+    Metropolis within Gibbs sampling scheme. Alternative inference methods
+    provided by Stan may be preferable in some situations, for example for
+    particularly large data or posterior distributions with difficult
+    geometries.
 License: GPL-3
 Encoding: UTF-8
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Biarch: true
 Depends: 
-    R (>= 4.1),
-    BASiCS
+    R (>= 4.2),
+    BASiCS,
+    rstan (>= 2.18.1)
 Imports:
     methods,
     glmGamPoi,
@@ -44,7 +46,6 @@ Imports:
     SummarizedExperiment,
     Rcpp (>= 0.12.0),
     RcppParallel (>= 5.0.1),
-    rstan (>= 2.18.1),
     rstantools (>= 2.1.1)
 LinkingTo: 
     BH (>= 1.66.0),

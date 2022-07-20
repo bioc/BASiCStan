@@ -36,10 +36,10 @@
 #' library("BASiCS")
 #' sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
 #'
-#' fit_spikes <- BASiCStan(sce)
+#' fit_spikes <- BASiCStan(sce, tol_rel_obj = 1)
 #'
 #' ## uses fixed scaling normalisation factors
-#' fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE)
+#' fit_nospikes <- BASiCStan(sce, WithSpikes = FALSE, tol_rel_obj = 1)
 #'
 #' @importFrom BASiCS BASiCS_PriorParam
 #' @importFrom utils capture.output
@@ -157,7 +157,7 @@ BASiCStan <- function(
         )
     }
     if (ReturnBASiCS) {
-        .stan2basics(
+        Stan2BASiCS(
             fit,
             gene_names = rownames(counts),
             cell_names = colnames(counts),
@@ -168,19 +168,26 @@ BASiCStan <- function(
     }
 }
 
-#' Convert stan fits to BASiCS_Chain objects.
+#' Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.
 #'
 #' @param x A stan object
 #' @param gene_names,cell_names Gene and cell names. The reason this argument
 #' exists is that by default, stan fit parameters are not named.
 #' NOTE: this must be the same order as the
-#' data supplied to BASiCS_stan.
+#' data supplied to \code{\link{BASiCStan}}.
 #' @param size_factors Cell-specific scaling normalisation factors, to be
 #' stored as part of the chain object when \code{WithSpikes=FALSE}.
 #'
-#' @return A BASiCS_Chain object.
+#' @return A \code{\linkS4class{BASiCS_Chain}} object.
 #' @importFrom rstan extract
-.stan2basics <- function(
+#' @examples
+#' library("BASiCS")
+#' sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
+#'
+#' fit_spikes <- BASiCStan(sce, ReturnBASiCS = FALSE, tol_rel_obj = 1)
+#' summary(fit_spikes)
+#' @export
+Stan2BASiCS <- function(
     x,
     gene_names = NULL,
     cell_names = NULL,

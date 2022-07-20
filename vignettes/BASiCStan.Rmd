@@ -3,7 +3,7 @@ title: "An introduction to BASiCStan"
 subtitle: "A Stan implementation of BASiCS"
 output: rmarkdown::html_vignette
 vignette: >
-    %\VignetteIndexEntry{BASiCStan}
+    %\VignetteIndexEntry{An introduction to BASiCStan}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -20,10 +20,9 @@ knitr::opts_chunk$set(
 This package implements alternative inference methods for
 [BASiCS](https://bioconductor.org/packages/release/bioc/html/BASiCS.html).
 The original package uses adaptive Metropolis within Gibbs sampling, while
-BASiCStan uses Stan to enable the use of maximum *a posterior*, variational
-inference, and Hamiltonian Monte Carlo to infer parameters. These each
+BASiCStan uses Stan to enable the use of maximum *a posteriori* estimation,
+variational inference, and Hamiltonian Monte Carlo. These each
 have advantages for different use cases.
-
 
 # Use
 
@@ -44,20 +43,49 @@ between mean and over-dispersion parameters, corresponding to
 ```{r basics, results = "hide"}
 amwg_fit <- BASiCS_MCMC(
     sce,
-    N = 2000,
+    N = 200,
     Thin = 10,
-    Burn = 1000,
+    Burn = 100,
     Regression = TRUE
 )
-stan_fit <- BASiCStan(sce)
+stan_fit <- BASiCStan(sce, Method = "sampling", iter = 10)
 ```
 
 The output of `BASiCStan()` is an object of class `BASiCS_Chain`, similar to
-the output of `BASiCS_MCMC()`. Therefore, . For example, we can plot the
+the output of `BASiCS_MCMC()`. Therefore, you could use these as you would an
+object generated using Metropolis within Gibbs sampling.
+For example, we can plot the
 relationship between mean and over-dispersion estimated using the joint
 regression prior:
 
 ```{r}
 BASiCS_ShowFit(amwg_fit)
 BASiCS_ShowFit(stan_fit)
+```
+
+# Stan MCMC diagnostics
+
+Using Stan has advantages outside of the variety of inference engines available.
+By returning a Stan object that we can later convert to a `BASiCS_Chain` object,
+we can leverage an even broader set of functionality.
+For example, Stan has the ability to easily generate MCMC diagnostics
+using simple functions. For example, `summary()` outputs a number of useful
+per-chain and across-chain diagnostics:
+
+```{r}
+stan_obj <- BASiCStan(sce, ReturnBASiCS = FALSE, Method = "sampling", iter = 10)
+summary(stan_obj)
+```
+
+We can then convert this object to a `BASiCS_Chain` and carry on a workflow as
+before:
+
+```{r}
+Stan2BASiCS(stan_obj)
+```
+
+# Session info
+
+```{r}
+sessionInfo()
 ```

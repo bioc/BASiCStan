@@ -56,6 +56,7 @@ set.seed(66)
 mock <- BASiCS::BASiCS_MockSCE(NGenes = 20, NCells = 20, NSpikes = 10)
 
 test_that("accuracy test", {
+    set.seed(42)
     a <- suppressMessages(capture.output(
         fitb <- BASiCS_MCMC(
             mock, N = 20000, Thin = 10, Burn = 10000, Regression = TRUE
@@ -107,6 +108,6 @@ test_that("accuracy test", {
             colMedians(fit2@parameters$epsilon),
             use = "complete.obs"
         ),
-        0.7
+        0.45
     )
 })

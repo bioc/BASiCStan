@@ -3,6 +3,7 @@
 S3method(extract,list)
 S3method(extract,stanfit)
 export(BASiCStan)
+export(Stan2BASiCS)
 import(Rcpp)
 import(methods)
 importFrom(BASiCS,BASiCS_PriorParam)
