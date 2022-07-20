@@ -65,4 +65,3 @@ Suggests:
     knitr,
     rmarkdown
 Config/testthat/edition: 3
-VignetteBuilder: knitr
