@@ -57,7 +57,7 @@ LinkingTo:
 SystemRequirements: GNU make
 biocViews: ImmunoOncology, Normalization, Sequencing, RNASeq, Software, 
         GeneExpression, Transcriptomics, SingleCell, 
-        DifferentialExpression, Bayesian, CellBiology, ImmunoOncology
+        DifferentialExpression, Bayesian, CellBiology
 URL: https://github.com/Alanocallaghan/BASiCStan
 BugReports: https://github.com/Alanocallaghan/BASiCStan/issues
 Suggests: 
