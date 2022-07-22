@@ -74,7 +74,7 @@ per-chain and across-chain diagnostics:
 
 ```{r}
 stan_obj <- BASiCStan(sce, ReturnBASiCS = FALSE, Method = "sampling", iter = 10)
-summary(stan_obj)
+head(summary(stan_obj)$summary)
 ```
 
 We can then convert this object to a `BASiCS_Chain` and carry on a workflow as
