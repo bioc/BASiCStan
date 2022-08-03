@@ -186,7 +186,7 @@ Stan2BASiCS <- function(
     x,
     gene_names = attr(x, "gene_names"),
     cell_names = attr(x, "cell_names"),
-    size_factors) {
+    size_factors = attr(x, "size_factors")) {
 
     xe <- extract(x)
     parameters <- list(
@@ -197,6 +197,9 @@ Stan2BASiCS <- function(
         theta = xe[["theta"]]
     )
     if (is.null(parameters$nu)) {
+        if (is.null(size_factors)) {
+            stop("size_factors must be supplied when converting an object created WithSpikes=FALSE")
+        }
         parameters$nu <- t(replicate(nrow(parameters$mu), size_factors))
         parameters$theta <- matrix(1, nrow = nrow(parameters$mu), ncol = 1)
         parameters$s <- parameters$nu

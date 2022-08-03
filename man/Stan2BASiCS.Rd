@@ -4,7 +4,12 @@
 \alias{Stan2BASiCS}
 \title{Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.}
 \usage{
-Stan2BASiCS(x, gene_names = NULL, cell_names = NULL, size_factors = NULL)
+Stan2BASiCS(
+  x,
+  gene_names = attr(x, "gene_names"),
+  cell_names = attr(x, "cell_names"),
+  size_factors = attr(x, "size_factors")
+)
 }
 \arguments{
 \item{x}{A stan object}
