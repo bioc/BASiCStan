@@ -56,6 +56,8 @@ BASiCStan <- function(
     ...
   ) {
 
+    stopifnot(inherits(Data, "SingleCellExperiment"))
+    
     if (!Regression) {
         stop("Only Regression=TRUE is supported.")
     }
@@ -69,9 +71,6 @@ BASiCStan <- function(
         mod <- paste(mod, "nospikes", sep = "_")
     }
     model <- stanmodels[[mod]]
-    # if (!WithSpikes) {
-    #     stop("Not implemented yet")
-    # }
 
     if (WithSpikes) {
         spikes <- assay(altExp(Data))
@@ -81,7 +80,7 @@ BASiCStan <- function(
         counts <- counts(Data)
     }
     if (is.null(BatchInfo) | length(unique(BatchInfo)) == 1) {
-        BatchInfo <- 1
+        BatchInfo <- rep(1, ncol(Data))
         batch_design <- matrix(1, nrow = ncol(Data))
     } else {
         batch_design <- model.matrix(~0 + factor(BatchInfo))
@@ -154,13 +153,11 @@ BASiCStan <- function(
             )
         )
     }
+    attr(fit, "gene_names") <- rownames(counts)
+    attr(fit, "cell_names") <- colnames(counts)
+    attr(fit, "size_factors") <- size_factors
     if (ReturnBASiCS) {
-        Stan2BASiCS(
-            fit,
-            gene_names = rownames(counts),
-            cell_names = colnames(counts),
-            size_factors = size_factors
-        )
+        Stan2BASiCS(fit)
     } else {
         fit
     }
@@ -187,9 +184,9 @@ BASiCStan <- function(
 #' @export
 Stan2BASiCS <- function(
     x,
-    gene_names = NULL,
-    cell_names = NULL,
-    size_factors = NULL) {
+    gene_names = attr(x, "gene_names"),
+    cell_names = attr(x, "cell_names"),
+    size_factors) {
 
     xe <- extract(x)
     parameters <- list(

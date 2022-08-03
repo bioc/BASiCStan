@@ -30,7 +30,7 @@ To use `BASiCStan`, we can first use `BASICS_MockSCE()` to generate an
 toy example dataset. We will also set a seed for reproducibility.
 
 ```{r setup}
-library("BASiCStan")
+suppressPackageStartupMessages(library("BASiCStan"))
 set.seed(42)
 sce <- BASiCS_MockSCE()
 ```
