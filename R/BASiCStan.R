@@ -57,8 +57,6 @@ BASiCStan <- function(
   ) {
 
     stopifnot(inherits(Data, "SingleCellExperiment"))
-    stopifnot(is.character(colnames(Data)))
-    stopifnot(is.character(rownames(Data)))
     
     if (!Regression) {
         stop("Only Regression=TRUE is supported.")
@@ -161,7 +159,7 @@ BASiCStan <- function(
     if (ReturnBASiCS) {
         Stan2BASiCS(fit)
     } else {
-        new("BASiCStan", fit, FeatureNames = rownames(Data), ObservationNames = colnames(Data))
+        fit
     }
 }
 

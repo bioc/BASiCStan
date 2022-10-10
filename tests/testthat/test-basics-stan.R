@@ -113,18 +113,3 @@ test_that("accuracy test", {
         0.45
     )
 })
-
-
-test_that("wrapper class", {
-    set.seed(66)
-    mock <- BASiCS::BASiCS_MockSCE()
-    fit <- BASiCStan(mock,
-        Method = "vb", ReturnBASiCS = FALSE, Verbose = FALSE,
-        tol_rel_obj = 1
-    )
-    expect_s4_class(fit, "BASiCStan")
-    expect_equal(featureNames(fit), rownames(mock))
-    expect_equal(sampleNames(fit), colnames(mock))
-    # expect_equal(nrow(fit), nrow(mock))
-    # expect_equal(ncol(fit), ncol(mock))
-})

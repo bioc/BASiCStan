@@ -1,6 +1,6 @@
 Package: BASiCStan
 Title: Stan implementation of BASiCS
-Version: 0.99.9
+Version: 0.99.8
 Date: 2022-08-03
 Authors@R: 
     c(
@@ -44,7 +44,6 @@ Imports:
     utils,
     SingleCellExperiment,
     SummarizedExperiment,
-    Biobase,
     Rcpp (>= 0.12.0),
     RcppParallel (>= 5.0.1),
     rstantools (>= 2.1.1)
