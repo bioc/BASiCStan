@@ -32,8 +32,8 @@ data {
   int n;
   int sq;
   int p;
-  int<lower=0> counts[q, n];
-  int<lower=0> spikes[sq, n];
+  array[q, n] int<lower=0> counts;
+  array[sq, n] int<lower=0> spikes;
   real as;
   real bs;
   real atheta;
@@ -57,7 +57,7 @@ parameters {
   vector [q] log_mu;
   vector <lower=0> [q] delta;
   simplex[n] tphi;
-  real <lower=0> nu[n];
+  array[n] real <lower=0> nu;
   vector <lower=0> [n] s;
   vector <lower=0> [p] theta;
   vector [l] beta;

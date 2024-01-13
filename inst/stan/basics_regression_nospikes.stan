@@ -31,7 +31,7 @@ data {
   int q;
   int n;
   int p;
-  int<lower=0> counts[q, n];
+  array[q, n] int<lower=0> counts;
   vector[q] mu_mu;
   real smu;
   real astwo;
