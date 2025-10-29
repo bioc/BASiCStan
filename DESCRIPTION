@@ -1,6 +1,6 @@
 Package: BASiCStan
 Title: Stan implementation of BASiCS
-Version: 1.11.0
+Version: 1.12.0
 Date: 2024-02-14
 Authors@R: 
     c(
