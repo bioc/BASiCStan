@@ -48,7 +48,7 @@ normalisation factors. See \code{\link[scran]{computeSumFactors}} for
 details on the default.}
 
 \item{ReturnBASiCS}{Should the object be converted into a
-\linkS4class{BASiCS_Chain} object?}
+\link[BASiCS]{BASiCS_Chain-class} object?}
 
 \item{Verbose}{Should output of the stan commands be printed to
 the terminal?}
@@ -56,7 +56,7 @@ the terminal?}
 \item{...}{Passed to vb or sampling.}
 }
 \value{
-An object of class \code{\linkS4class{BASiCS_Chain}}.
+An object of class \code{\link[BASiCS]{BASiCS_Chain-class}}.
 }
 \description{
 The stan programming language enables the use of MAP, VB, and HMC inference.

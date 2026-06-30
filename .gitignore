@@ -4,3 +4,5 @@ src/stanExports*
 /doc/
 /Meta/
 inst/doc
+src/*.so
+src/*.o

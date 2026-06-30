@@ -2,7 +2,7 @@
 % Please edit documentation in R/BASiCStan.R
 \name{Stan2BASiCS}
 \alias{Stan2BASiCS}
-\title{Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.}
+\title{Convert Stan fits to \code{\link[BASiCS]{BASiCS_Chain-class}} objects.}
 \usage{
 Stan2BASiCS(
   x,
@@ -23,10 +23,10 @@ data supplied to \code{\link{BASiCStan}}.}
 stored as part of the chain object when \code{WithSpikes=FALSE}.}
 }
 \value{
-A \code{\linkS4class{BASiCS_Chain}} object.
+A \code{\link[BASiCS]{BASiCS_Chain-class}} object.
 }
 \description{
-Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.
+Convert Stan fits to \code{\link[BASiCS]{BASiCS_Chain-class}} objects.
 }
 \examples{
 library("BASiCS")

@@ -9,14 +9,12 @@
 #'  particularly large data or posterior distributions with difficult
 #'  geometries. See also \link[BASiCS]{BASiCS_MCMC}
 #'
-#' @docType package
 #' @name BASiCStan-package
 #' @useDynLib BASiCStan, .registration = TRUE
 #' @import methods
 #' @import Rcpp
 #' @importFrom rstan sampling
-#' @importFrom SingleCellExperiment counts logcounts sizeFactors altExp
-#' altExpNames
+#' @importFrom SingleCellExperiment counts logcounts sizeFactors altExp altExpNames
 #' @importFrom SummarizedExperiment assay rowData
 #' @importFrom stats model.matrix setNames
 #' @importFrom BASiCS BASiCS_PriorParam
@@ -37,4 +35,4 @@
 #' 
 #' Eling et al (2018). Cell Systems.
 #' \url{https://doi.org/10.1016/j.cels.2018.06.011}
-NULL
+"_PACKAGE"

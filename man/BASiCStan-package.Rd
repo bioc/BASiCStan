@@ -27,3 +27,21 @@ Vallejos, Richardson and Marioni (2016). Genome Biology.
 Eling et al (2018). Cell Systems.
 \url{https://doi.org/10.1016/j.cels.2018.06.011}
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/Alanocallaghan/BASiCStan}
+  \item Report bugs at \url{https://github.com/Alanocallaghan/BASiCStan/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Alan O'Callaghan \email{alan.ocallaghan@outlook.com}
+
+Authors:
+\itemize{
+  \item Alan O'Callaghan \email{alan.ocallaghan@outlook.com}
+  \item Catalina Vallejos
+}
+
+}

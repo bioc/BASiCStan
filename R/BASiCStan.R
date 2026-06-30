@@ -25,13 +25,13 @@
 #' normalisation factors. See \code{\link[scran]{computeSumFactors}} for
 #' details on the default.
 #' @param ReturnBASiCS Should the object be converted into a
-#' \linkS4class{BASiCS_Chain} object?
+#' \link[BASiCS]{BASiCS_Chain-class} object?
 #' @param Verbose Should output of the stan commands be printed to
 #' the terminal?
 #' @param ... Passed to vb or sampling.
 #' @importFrom rstan vb sampling
 #'
-#' @return An object of class \code{\linkS4class{BASiCS_Chain}}.
+#' @return An object of class \code{\link[BASiCS]{BASiCS_Chain-class}}.
 #' @examples
 #' library("BASiCS")
 #' sce <- BASiCS_MockSCE(NGenes = 10, NCells = 10)
@@ -163,7 +163,7 @@ BASiCStan <- function(
     }
 }
 
-#' Convert Stan fits to \code{\linkS4class{BASiCS_Chain}} objects.
+#' Convert Stan fits to \code{\link[BASiCS]{BASiCS_Chain-class}} objects.
 #'
 #' @param x A stan object
 #' @param gene_names,cell_names Gene and cell names. The reason this argument
@@ -173,7 +173,7 @@ BASiCStan <- function(
 #' @param size_factors Cell-specific scaling normalisation factors, to be
 #' stored as part of the chain object when \code{WithSpikes=FALSE}.
 #'
-#' @return A \code{\linkS4class{BASiCS_Chain}} object.
+#' @return A \code{\link[BASiCS]{BASiCS_Chain-class}} object.
 #' @importFrom rstan extract
 #' @examples
 #' library("BASiCS")
